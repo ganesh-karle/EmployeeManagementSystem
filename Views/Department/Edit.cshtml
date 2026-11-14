@@ -1,0 +1,51 @@
+@model Department
+@{
+    ViewData["Title"] = "Edit Department";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+            <div class="card-header bg-warning py-3 px-4 text-dark d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <div class="stat-icon bg-white bg-opacity-50 text-dark me-3" style="width: 42px; height: 42px;">
+                        <i class="fas fa-edit"></i>
+                    </div>
+                    <div>
+                        <h4 class="mb-0 fw-bold">Edit Department</h4>
+                        <small class="text-muted">Modify department details for @Model.Name</small>
+                    </div>
+                </div>
+                <a asp-action="Index" class="btn btn-outline-dark btn-sm rounded-pill px-3">
+                    <i class="fas fa-arrow-left me-1"></i> Return
+                </a>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="Edit" method="post">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
+                    <input type="hidden" asp-for="Id" />
+
+                    <div class="mb-3">
+                        <label asp-for="Name" class="form-label small fw-semibold text-muted"></label>
+                        <input asp-for="Name" class="form-control" />
+                        <span asp-validation-for="Name" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Description" class="form-label small fw-semibold text-muted"></label>
+                        <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                        <span asp-validation-for="Description" class="text-danger small"></span>
+                    </div>
+
+                    <div class="d-flex gap-2 justify-content-end pt-3 border-top">
+                        <a asp-action="Index" class="btn btn-outline-secondary rounded-pill px-4">Cancel</a>
+                        <button type="submit" class="btn btn-warning rounded-pill px-4 fw-bold shadow-sm">
+                            <i class="fas fa-save me-1"></i> Update Department
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

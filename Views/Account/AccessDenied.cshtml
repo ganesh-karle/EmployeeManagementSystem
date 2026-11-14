@@ -1,0 +1,29 @@
+@{
+    ViewData["Title"] = "Access Restricted";
+}
+
+<div class="row justify-content-center py-5">
+    <div class="col-md-6 col-lg-5 text-center">
+        <div class="card shadow-sm border-0 rounded-4 p-5">
+            <div class="stat-icon bg-danger bg-opacity-10 text-danger mx-auto mb-3" style="width: 72px; height: 72px; font-size: 2rem;">
+                <i class="fas fa-user-lock"></i>
+            </div>
+            <h3 class="fw-bold text-dark mb-2">Access Denied</h3>
+            <p class="text-muted mb-4">
+                You do not have the required administrative permissions to access this feature. This page is protected by Role-Based Authorization.
+            </p>
+            <div class="p-3 bg-light rounded-3 mb-4 text-start small">
+                <div class="fw-bold text-dark mb-1"><i class="fas fa-info-circle text-primary me-1"></i> Why am I seeing this?</div>
+                Your currently logged-in account has the <strong>Employee</strong> role, which restricts access to administrative features like creating, modifying, or deleting records.
+            </div>
+            <div class="d-flex gap-2 justify-content-center">
+                <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary rounded-pill px-4">
+                    <i class="fas fa-home me-1"></i> Back to Dashboard
+                </a>
+                <a asp-controller="Account" asp-action="Roles" class="btn btn-primary rounded-pill px-4">
+                    <i class="fas fa-shield me-1"></i> View Permissions
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,50 @@
+@model Employee
+@{
+    ViewData["Title"] = "Delete Employee Confirmation";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card shadow border-0 rounded-4 overflow-hidden border-danger">
+            <div class="card-header bg-danger text-white py-3 px-4">
+                <div class="d-flex align-items-center">
+                    <div class="stat-icon bg-white bg-opacity-20 text-white me-3" style="width: 42px; height: 42px;">
+                        <i class="fas fa-trash"></i>
+                    </div>
+                    <div>
+                        <h4 class="mb-0 fw-bold">Delete Employee</h4>
+                        <small class="text-white-50">Permanent action confirmation</small>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body p-4">
+                <div class="alert alert-warning border-0 rounded-3 mb-4">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Are you sure you want to permanently delete this employee? This action cannot be reversed.
+                </div>
+
+                <div class="p-3 bg-light rounded-3 mb-4">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4 text-muted">Full Name</dt>
+                        <dd class="col-sm-8 fw-bold text-dark">@Model.FullName</dd>
+                        <dt class="col-sm-4 text-muted">Email</dt>
+                        <dd class="col-sm-8">@Model.Email</dd>
+                        <dt class="col-sm-4 text-muted">Designation</dt>
+                        <dd class="col-sm-8">@Model.Designation</dd>
+                        <dt class="col-sm-4 text-muted">Department</dt>
+                        <dd class="col-sm-8">@(Model.Department?.Name ?? "General")</dd>
+                    </dl>
+                </div>
+
+                <form asp-action="Delete" method="post" class="d-flex gap-2 justify-content-end">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="Id" />
+                    <a asp-action="Index" class="btn btn-outline-secondary rounded-pill px-4">Cancel</a>
+                    <button type="submit" class="btn btn-danger rounded-pill px-4 shadow-sm">
+                        <i class="fas fa-trash me-1"></i> Confirm Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

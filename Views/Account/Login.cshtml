@@ -1,0 +1,85 @@
+@model LoginViewModel
+@{
+    ViewData["Title"] = "Sign In";
+}
+
+<div class="row justify-content-center py-4">
+    <div class="col-md-5 col-lg-4">
+        <!-- Login Card -->
+        <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+            <div class="p-4 text-center bg-gradient text-white" style="background: linear-gradient(135deg, #1e1b4b 0%, #4338ca 100%);">
+                <div class="bg-white bg-opacity-15 p-3 rounded-circle d-inline-flex mb-2">
+                    <i class="fas fa-lock fa-2x text-warning"></i>
+                </div>
+                <h4 class="fw-bold mb-1">Welcome Back</h4>
+                <p class="text-white-50 small mb-0">Sign in to your Employee Management account</p>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="Login" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
+                    <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label small fw-semibold text-muted"></label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0 text-muted"><i class="fas fa-envelope"></i></span>
+                            <input asp-for="Email" id="emailInput" class="form-control border-start-0" placeholder="name@company.com" />
+                        </div>
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Password" class="form-label small fw-semibold text-muted"></label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0 text-muted"><i class="fas fa-key"></i></span>
+                            <input asp-for="Password" id="passwordInput" class="form-control border-start-0" placeholder="••••••••" />
+                        </div>
+                        <span asp-validation-for="Password" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        <input asp-for="RememberMe" class="form-check-input" />
+                        <label asp-for="RememberMe" class="form-check-label small text-muted"></label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 rounded-pill py-2 fw-bold shadow-sm">
+                        <i class="fas fa-sign-in-alt me-1"></i> Sign In
+                    </button>
+                </form>
+
+                <hr class="my-4" />
+
+                <!-- 1-Click Quick Demo Credentials Fill -->
+                <div class="bg-light p-3 rounded-3 mb-3 border">
+                    <div class="small fw-bold text-dark mb-2 text-uppercase tracking-wider">
+                        <i class="fas fa-bolt text-warning me-1"></i> Quick 1-Click Login:
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="button" class="btn btn-sm btn-outline-danger text-start py-2 px-3 rounded-3" onclick="fillCredentials('admin@ems.com', 'Admin@123')">
+                            <div class="fw-bold"><i class="fas fa-shield me-1"></i> Admin User</div>
+                            <small class="text-muted">admin@ems.com &bull; Full CRUD &amp; Admin Rights</small>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-primary text-start py-2 px-3 rounded-3" onclick="fillCredentials('employee@ems.com', 'Emp@1234')">
+                            <div class="fw-bold"><i class="fas fa-user me-1"></i> Standard Employee</div>
+                            <small class="text-muted">employee@ems.com &bull; Limited Read Access</small>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="text-center small text-muted">
+                    Don't have an account? <a asp-action="Register" class="text-primary fw-semibold">Register here</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function fillCredentials(email, pwd) {
+            document.getElementById('emailInput').value = email;
+            document.getElementById('passwordInput').value = pwd;
+        }
+    </script>
+}

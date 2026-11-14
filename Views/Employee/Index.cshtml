@@ -1,0 +1,321 @@
+@model EmployeeListViewModel
+@{
+    ViewData["Title"] = "Employees Directory";
+}
+
+<!-- Page Header -->
+<div class="d-flex flex-wrap align-items-center justify-content-between mb-4">
+    <div>
+        <h2 class="fw-bold text-dark mb-1">
+            <i class="fas fa-users text-primary me-2"></i>Employees Directory
+        </h2>
+        <p class="text-muted mb-0">Manage workforce records, departments, designations, and compensation.</p>
+    </div>
+    <div class="mt-3 mt-md-0 d-flex gap-2 align-items-center">
+        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary rounded-pill px-3 shadow-sm">
+            <i class="fas fa-arrow-left me-1"></i> Return to Dashboard
+        </a>
+        @if (User.IsInRole("Admin"))
+        {
+            <a asp-action="Create" class="btn btn-primary rounded-pill px-4 shadow-sm">
+                <i class="fas fa-user-plus me-2"></i>Add Employee
+            </a>
+        }
+        else
+        {
+            <span class="badge bg-secondary-subtle text-secondary px-3 py-2 border">
+                <i class="fas fa-lock me-1"></i> View Only
+            </span>
+        }
+    </div>
+</div>
+
+<!-- Search & Filter Card -->
+<div class="card shadow-sm border-0 rounded-4 mb-4">
+    <div class="card-body p-4">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-5">
+                <label class="form-label small fw-semibold text-muted">Search Employee</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0 text-muted">
+                        <i class="fas fa-search"></i>
+                    </span>
+                    <input type="text" name="search" value="@Model.SearchTerm" class="form-control border-start-0 ps-0" placeholder="Search by name, email..." />
+                </div>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label small fw-semibold text-muted">Filter by Department</label>
+                <select name="departmentId" class="form-select">
+                    <option value="">All Departments</option>
+                    @foreach (var dept in Model.Departments)
+                    {
+                        <option value="@dept.Id" selected="@(Model.DepartmentFilter == dept.Id)">@dept.Name</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-primary rounded-pill flex-grow-1">
+                    <i class="fas fa-filter me-1"></i> Apply Filter
+                </button>
+                @if (!string.IsNullOrEmpty(Model.SearchTerm) || Model.DepartmentFilter.HasValue)
+                {
+                    <a asp-action="Index" class="btn btn-outline-secondary rounded-pill">
+                        <i class="fas fa-redo"></i> Reset
+                    </a>
+                }
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Employees Table Card -->
+<div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+    <div class="card-body p-0">
+        @if (Model.Employees.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">Employee</th>
+                            <th>Contact</th>
+                            <th>Department</th>
+                            <th>Designation</th>
+                            <th>Salary</th>
+                            <th class="text-end pe-4">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var emp in Model.Employees)
+                        {
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-circle me-3 bg-primary bg-opacity-10 text-primary fw-bold" style="cursor: pointer;" onclick="showAttendanceModal(@emp.Id)" title="Click to view Attendance & Leaves">
+                                            @emp.FirstName.Substring(0, 1).ToUpper()@emp.LastName.Substring(0, 1).ToUpper()
+                                        </div>
+                                        <div>
+                                            <a href="javascript:void(0);" onclick="showAttendanceModal(@emp.Id)" class="text-decoration-none" title="Click to view Attendance & Leaves">
+                                                <div class="fw-bold text-dark text-hover-primary">@emp.FullName</div>
+                                            </a>
+                                            <small class="text-muted">Hired: @emp.HireDate.ToString("MMM yyyy")</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div><i class="fas fa-envelope text-muted me-1 small"></i> @emp.Email</div>
+                                    <small class="text-muted"><i class="fas fa-phone text-muted me-1 small"></i> @emp.PhoneNumber</small>
+                                </td>
+                                <td>
+                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2">
+                                        @(emp.Department?.Name ?? "General")
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="fw-medium text-dark">@emp.Designation</span>
+                                </td>
+                                <td>
+                                    <span class="fw-bold text-success">₹@emp.Salary.ToString("N0")</span>
+                                </td>
+                                <td class="text-end pe-4">
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <button type="button" onclick="showAttendanceModal(@emp.Id)" class="btn btn-outline-primary rounded-pill px-3 me-1" title="View This Month's Attendance & Leaves">
+                                            <i class="far fa-calendar-check"></i> Attendance
+                                        </button>
+                                        <a asp-action="Details" asp-route-id="@emp.Id" class="btn btn-outline-info rounded-pill px-3 me-1" title="View Details">
+                                            <i class="fas fa-eye"></i> Details
+                                        </a>
+                                        @if (User.IsInRole("Admin"))
+                                        {
+                                            <a asp-action="Edit" asp-route-id="@emp.Id" class="btn btn-outline-warning rounded-pill px-3 me-1" title="Edit">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </a>
+                                            <a asp-action="Delete" asp-route-id="@emp.Id" class="btn btn-outline-danger rounded-pill px-3" title="Delete">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <i class="fas fa-users-slash fa-3x text-muted mb-3 opacity-50"></i>
+                <h5 class="text-dark fw-bold">No Employees Found</h5>
+                <p class="text-muted">Try adjusting your search criteria or add new employee records.</p>
+                @if (User.IsInRole("Admin"))
+                {
+                    <a asp-action="Create" class="btn btn-primary rounded-pill px-4 mt-2">
+                        <i class="fas fa-plus me-1"></i> Add First Employee
+                    </a>
+                }
+            </div>
+        }
+    </div>
+
+    <!-- Pagination Footer -->
+    @if (Model.TotalPages > 1)
+    {
+        <div class="card-footer bg-white border-top py-3 d-flex justify-content-between align-items-center">
+            <span class="small text-muted">
+                Showing Page <strong>@Model.CurrentPage</strong> of <strong>@Model.TotalPages</strong>
+            </span>
+            <nav>
+                <ul class="pagination pagination-sm mb-0">
+                    <li class="page-item @(Model.CurrentPage == 1 ? "disabled" : "")">
+                        <a class="page-link rounded-pill me-1" asp-action="Index" asp-route-search="@Model.SearchTerm" asp-route-departmentId="@Model.DepartmentFilter" asp-route-page="@(Model.CurrentPage - 1)">Previous</a>
+                    </li>
+                    @for (int i = 1; i <= Model.TotalPages; i++)
+                    {
+                        <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                            <a class="page-link rounded-circle mx-1 text-center" style="width: 32px; height: 32px; line-height: 18px;" asp-action="Index" asp-route-search="@Model.SearchTerm" asp-route-departmentId="@Model.DepartmentFilter" asp-route-page="@i">@i</a>
+                        </li>
+                    }
+                    <li class="page-item @(Model.CurrentPage == Model.TotalPages ? "disabled" : "")">
+                        <a class="page-link rounded-pill ms-1" asp-action="Index" asp-route-search="@Model.SearchTerm" asp-route-departmentId="@Model.DepartmentFilter" asp-route-page="@(Model.CurrentPage + 1)">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    }
+</div>
+
+<!-- Employee Attendance & Leaves Preview Modal -->
+<div class="modal fade" id="attendancePreviewModal" tabindex="-1" aria-labelledby="attendanceModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow">
+            <div class="modal-header border-bottom py-3 px-4">
+                <div class="d-flex align-items-center">
+                    <div class="stat-icon bg-primary bg-opacity-10 text-primary me-3" style="width: 44px; height: 44px; font-size: 1.2rem;">
+                        <i class="far fa-calendar-check"></i>
+                    </div>
+                    <div>
+                        <h5 class="modal-title fw-bold mb-0" id="modalEmployeeName">Employee Attendance</h5>
+                        <small class="text-muted" id="modalEmployeeSub">This Month Attendance &amp; Leave Record</small>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <!-- Summary Metrics for the Month -->
+                <div class="row g-3 mb-4">
+                    <div class="col-6 col-md-3">
+                        <div class="p-3 bg-light rounded-3 text-center">
+                            <small class="text-muted fw-bold d-block text-uppercase">Days Present</small>
+                            <span class="fs-4 fw-bold text-success" id="modalDaysPresent">0</span>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="p-3 bg-light rounded-3 text-center">
+                            <small class="text-muted fw-bold d-block text-uppercase">Leaves Taken</small>
+                            <span class="fs-4 fw-bold text-info" id="modalDaysLeave">0</span>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="p-3 bg-light rounded-3 text-center">
+                            <small class="text-muted fw-bold d-block text-uppercase">Late Days</small>
+                            <span class="fs-4 fw-bold text-warning" id="modalDaysLate">0</span>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="p-3 bg-light rounded-3 text-center">
+                            <small class="text-muted fw-bold d-block text-uppercase">Leave Balance</small>
+                            <span class="fs-4 fw-bold text-primary" id="modalLeaveBalance">18</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Daily Breakdown Table -->
+                <h6 class="fw-bold mb-2 text-dark"><i class="fas fa-list me-2 text-primary"></i>Attendance History for <span id="modalMonthHeader">This Month</span></h6>
+                <div class="table-responsive" style="max-height: 280px; overflow-y: auto;">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light sticky-top">
+                            <tr>
+                                <th>Date</th>
+                                <th>Day</th>
+                                <th>Clock In</th>
+                                <th>Clock Out</th>
+                                <th>Status</th>
+                                <th>Remarks</th>
+                            </tr>
+                        </thead>
+                        <tbody id="modalRecordsBody">
+                            <tr><td colspan="6" class="text-center py-4 text-muted">Loading attendance data...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer border-top py-2 px-4 justify-content-between">
+                <a id="modalFullViewLink" href="#" class="btn btn-outline-primary btn-sm rounded-pill px-3">
+                    <i class="fas fa-calendar-alt me-1"></i> Full Monthly Calendar
+                </a>
+                <button type="button" class="btn btn-secondary btn-sm rounded-pill px-3" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function showAttendanceModal(employeeId) {
+            const modalEl = document.getElementById('attendancePreviewModal');
+            const modal = new bootstrap.Modal(modalEl);
+            modal.show();
+
+            document.getElementById('modalRecordsBody').innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted"><i class="fas fa-spinner fa-spin me-2"></i> Loading attendance details...</td></tr>';
+
+            fetch(`/Employee/GetMonthlyAttendanceJson?id=${employeeId}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('modalEmployeeName').textContent = data.fullName;
+                    document.getElementById('modalEmployeeSub').textContent = `${data.designation} • ${data.department} • ${data.monthName}`;
+                    document.getElementById('modalMonthHeader').textContent = data.monthName;
+                    document.getElementById('modalDaysPresent').textContent = data.daysPresent;
+                    document.getElementById('modalDaysLeave').textContent = data.daysOnLeave;
+                    document.getElementById('modalDaysLate').textContent = data.daysLate;
+                    document.getElementById('modalLeaveBalance').textContent = data.availableLeaves;
+                    document.getElementById('modalFullViewLink').href = `/Employee/MonthlyAttendance/${employeeId}`;
+
+                    let rowsHtml = '';
+                    if (data.records && data.records.length > 0) {
+                        data.records.forEach(r => {
+                            let badgeClass = 'bg-success-subtle text-success border border-success-subtle';
+                            let icon = 'fa-check-circle';
+                            if (r.status === 'Late') {
+                                badgeClass = 'bg-warning-subtle text-warning-emphasis border border-warning-subtle';
+                                icon = 'fa-clock';
+                            } else if (r.status === 'On Leave') {
+                                badgeClass = 'bg-info-subtle text-info border border-info-subtle';
+                                icon = 'fa-umbrella-beach';
+                            } else if (r.status === 'Absent') {
+                                badgeClass = 'bg-danger-subtle text-danger border border-danger-subtle';
+                                icon = 'fa-times-circle';
+                            }
+
+                            rowsHtml += `
+                                <tr>
+                                    <td class="fw-bold">${r.date}</td>
+                                    <td><span class="badge bg-light text-dark border">${r.day}</span></td>
+                                    <td>${r.clockIn}</td>
+                                    <td>${r.clockOut}</td>
+                                    <td><span class="badge ${badgeClass} px-2 py-1"><i class="fas ${icon} me-1"></i> ${r.status}</span></td>
+                                    <td><small class="text-muted">${r.remarks || '-'}</small></td>
+                                </tr>
+                            `;
+                        });
+                    } else {
+                        rowsHtml = '<tr><td colspan="6" class="text-center py-3 text-muted">No attendance logs found for this month.</td></tr>';
+                    }
+                    document.getElementById('modalRecordsBody').innerHTML = rowsHtml;
+                })
+                .catch(err => {
+                    document.getElementById('modalRecordsBody').innerHTML = '<tr><td colspan="6" class="text-center py-3 text-danger">Failed to load attendance records.</td></tr>';
+                });
+        }
+    </script>
+}

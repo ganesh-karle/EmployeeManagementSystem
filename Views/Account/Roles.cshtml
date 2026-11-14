@@ -1,0 +1,176 @@
+@model RoleAccessViewModel
+@{
+    ViewData["Title"] = "Role-Based Access Control (RBAC)";
+}
+
+<div class="row align-items-center mb-4">
+    <div class="col-md-8">
+        <h2 class="fw-bold text-dark mb-1">
+            <i class="fas fa-user-shield text-primary me-2"></i>Role-Based Access Control (RBAC)
+        </h2>
+        <p class="text-muted mb-0">Overview of configured security roles, access policies, and assigned user permissions.</p>
+    </div>
+    <div class="col-md-5 text-md-end mt-3 mt-md-0 d-flex gap-2 justify-content-md-end align-items-center">
+        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary btn-sm rounded-pill px-3 shadow-sm">
+            <i class="fas fa-arrow-left me-1"></i> Return to Dashboard
+        </a>
+        @if (User.IsInRole("Admin"))
+        {
+            <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 fs-6">
+                <i class="fas fa-check-circle me-1"></i> Logged in as Admin
+            </span>
+        }
+        else
+        {
+            <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 fs-6">
+                <i class="fas fa-user me-1"></i> Standard Employee Access
+            </span>
+        }
+    </div>
+</div>
+
+<!-- Role Permissions Matrix Card -->
+<div class="card shadow-sm border-0 mb-4 rounded-4 overflow-hidden">
+    <div class="card-header bg-gradient bg-primary text-white py-3 px-4">
+        <h5 class="mb-0 fw-semibold"><i class="fas fa-table-list me-2"></i>Role Permissions Matrix</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">Module / Feature</th>
+                        <th>Action / Capability</th>
+                        <th class="text-center" style="width: 180px;">Admin Role</th>
+                        <th class="text-center" style="width: 180px;">Employee Role</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="ps-4 fw-semibold"><i class="fas fa-users text-primary me-2"></i>Employees Directory</td>
+                        <td>View directory, Search, Filter & Pagination</td>
+                        <td class="text-center"><span class="badge bg-success px-3 py-2"><i class="fas fa-check me-1"></i> Allowed</span></td>
+                        <td class="text-center"><span class="badge bg-success px-3 py-2"><i class="fas fa-check me-1"></i> Allowed</span></td>
+                    </tr>
+                    <tr>
+                        <td class="ps-4 fw-semibold"><i class="fas fa-user-plus text-success me-2"></i>Create Employee</td>
+                        <td>Add new employees with validation</td>
+                        <td class="text-center"><span class="badge bg-success px-3 py-2"><i class="fas fa-check me-1"></i> Allowed</span></td>
+                        <td class="text-center"><span class="badge bg-danger-subtle text-danger px-3 py-2"><i class="fas fa-ban me-1"></i> Restricted</span></td>
+                    </tr>
+                    <tr>
+                        <td class="ps-4 fw-semibold"><i class="fas fa-user-edit text-warning me-2"></i>Edit Employee</td>
+                        <td>Modify employee records and department</td>
+                        <td class="text-center"><span class="badge bg-success px-3 py-2"><i class="fas fa-check me-1"></i> Allowed</span></td>
+                        <td class="text-center"><span class="badge bg-danger-subtle text-danger px-3 py-2"><i class="fas fa-ban me-1"></i> Restricted</span></td>
+                    </tr>
+                    <tr>
+                        <td class="ps-4 fw-semibold"><i class="fas fa-user-times text-danger me-2"></i>Delete Employee</td>
+                        <td>Permanently delete employee records</td>
+                        <td class="text-center"><span class="badge bg-success px-3 py-2"><i class="fas fa-check me-1"></i> Allowed</span></td>
+                        <td class="text-center"><span class="badge bg-danger-subtle text-danger px-3 py-2"><i class="fas fa-ban me-1"></i> Restricted</span></td>
+                    </tr>
+                    <tr>
+                        <td class="ps-4 fw-semibold"><i class="fas fa-building text-info me-2"></i>Departments Management</td>
+                        <td>Create, update, and manage organizational units</td>
+                        <td class="text-center"><span class="badge bg-success px-3 py-2"><i class="fas fa-check me-1"></i> Allowed</span></td>
+                        <td class="text-center"><span class="badge bg-danger-subtle text-danger px-3 py-2"><i class="fas fa-ban me-1"></i> Restricted</span></td>
+                    </tr>
+                    <tr>
+                        <td class="ps-4 fw-semibold"><i class="fas fa-user-lock text-purple me-2"></i>Role Access Management</td>
+                        <td>Switch user roles and manage access levels</td>
+                        <td class="text-center"><span class="badge bg-success px-3 py-2"><i class="fas fa-check me-1"></i> Full Access</span></td>
+                        <td class="text-center"><span class="badge bg-secondary-subtle text-secondary px-3 py-2"><i class="fas fa-eye me-1"></i> View Only</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Users & Assigned Roles Card -->
+<div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+    <div class="card-header bg-white py-3 px-4 border-bottom d-flex justify-content-between align-items-center">
+        <h5 class="mb-0 fw-semibold text-dark"><i class="fas fa-users-gear me-2 text-primary"></i>Assigned System Users & Roles</h5>
+        <span class="badge bg-dark-subtle text-dark px-3 py-2">@Model.Users.Count Total Users</span>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">User</th>
+                        <th>Email</th>
+                        <th>Current Role</th>
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <th class="text-end pe-4">Change Role</th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in Model.Users)
+                    {
+                        <tr>
+                            <td class="ps-4">
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-circle me-3 bg-primary text-white fw-bold">
+                                        @user.FullName.Substring(0, Math.Min(1, user.FullName.Length)).ToUpper()
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold text-dark">@user.FullName</div>
+                                        <small class="text-muted">User ID: @user.UserId.Substring(0, Math.Min(8, user.UserId.Length))...</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>@user.Email</td>
+                            <td>
+                                @if (user.Role.Contains("Admin"))
+                                {
+                                    <span class="badge bg-danger px-3 py-2"><i class="fas fa-shield me-1"></i> Admin</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-primary px-3 py-2"><i class="fas fa-user me-1"></i> Employee</span>
+                                }
+                            </td>
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <td class="text-end pe-4">
+                                    <form asp-action="ToggleRole" method="post" class="d-inline-flex gap-2">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="userId" value="@user.UserId" />
+                                        @if (user.Role.Contains("Admin"))
+                                        {
+                                            <input type="hidden" name="newRole" value="Employee" />
+                                            <button type="submit" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                                <i class="fas fa-arrow-down me-1"></i> Demote to Employee
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <input type="hidden" name="newRole" value="Admin" />
+                                            <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3">
+                                                <i class="fas fa-arrow-up me-1"></i> Promote to Admin
+                                            </button>
+                                        }
+                                    </form>
+                                </td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="mt-4 text-center">
+    <a asp-controller="Employee" asp-action="Index" class="btn btn-primary rounded-pill px-4 py-2 me-2">
+        <i class="fas fa-users me-2"></i>Go to Employees Directory
+    </a>
+    <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary rounded-pill px-4 py-2">
+        <i class="fas fa-home me-2"></i>Back to Home
+    </a>
+</div>
+
